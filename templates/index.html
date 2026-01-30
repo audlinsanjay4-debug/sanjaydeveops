@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a6ed1">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a6ed1, #eaf4ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: #ffffff;
+            width: 360px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .title {
+            text-align: center;
+            color: #0a6ed1;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .role-buttons {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .role-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: #eaf4ff;
+            color: #0a6ed1;
+            transition: 0.3s;
+        }
+
+        .role-buttons button.active {
+            background: #0a6ed1;
+            color: white;
+        }
+
+        .role-buttons button:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .role-buttons button:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0a6ed1;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0a6ed1;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #084f9c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="title">Login Portal</div>
+
+    <div class="role-buttons">
+        <button type="button" id="studentBtn" class="active" onclick="setRole('student')">Student</button>
+        <button type="button" id="teacherBtn" onclick="setRole('teacher')">Teacher</button>
+    </div>
+
+    <form id="loginForm">
+        <input type="hidden" name="role" id="role" value="student">
+
+        <div class="form-group">
+            <label>User ID</label>
+            <input type="text" name="user_id" placeholder="Enter User ID" required>
+        </div>
+
+        <div class="form-group" id="yearField">
+            <label>Year</label>
+            <select name="year">
+                <option value="">Select Year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter Password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+</div>
+
+<script>
+    function setRole(role) {
+        document.getElementById("role").value = role;
+
+        const studentBtn = document.getElementById("studentBtn");
+        const teacherBtn = document.getElementById("teacherBtn");
+        const yearField = document.getElementById("yearField");
+
+        if (role === "student") {
+            studentBtn.classList.add("active");
+            teacherBtn.classList.remove("active");
+            yearField.style.display = "block";
+        } else {
+            teacherBtn.classList.add("active");
+            studentBtn.classList.remove("active");
+            yearField.style.display = "none";
+        }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        if (data.role === "teacher") {
+            delete data.year;
+        }
+
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        alert(result.message);
+    });
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+    }
+</script>
+
+</body>
+</html>
